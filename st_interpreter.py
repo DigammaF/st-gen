@@ -1,6 +1,3 @@
-"""
-	TODO: multiple arguments function
-"""
 
 from __future__ import annotations
 from enum import Enum
@@ -27,13 +24,16 @@ THEN: tuple[str] = ("then",)
 CONTROL_FLOW: tuple[str, ...] = THEN + END_INSTR + IF + END_IF
 KEYWORDS: tuple[str, ...] = CONTROL_FLOW + OPERATORS + OPEN_P + CLOSE_P
 
-COMPARE_FUNCTIONS: dict[str, Callable[[int, int], int]] = {
+BINARY_NUMERICAL_FUNCTIONS: dict[str, Callable[[int, int], int]] = {
 	"<=": lambda a, b: a <= b,
 	">=": lambda a, b: a >= b,
 	"<>": lambda a, b: a != b,
 	"=": lambda a, b: a == b,
 	"<": lambda a, b: a < b,
 	">": lambda a, b: a > b,
+	"+": lambda a, b: a + b,
+	"-": lambda a, b: a - b,
+	"*": lambda a, b: a*b
 }
 
 class STSyntaxError(Exception): ...
@@ -196,13 +196,13 @@ class ASTOperator(ASTValue):
 
 			return
 
-		if self.operator.value in COMPARE_FUNCTIONS:
-			fn = COMPARE_FUNCTIONS[self.operator.value]
+		if self.operator.value in BINARY_NUMERICAL_FUNCTIONS:
+			fn = BINARY_NUMERICAL_FUNCTIONS[self.operator.value]
 			[a, b] = self.operands
 			a.run(interpreter)
 			b.run(interpreter)
-			if not isinstance(a.value, int): raise Exception(f"{a.value} is not compatible with operation {self.operator.value}")
-			if not isinstance(b.value, int): raise Exception(f"{b.value} is not compatible with operation {self.operator.value}")
+			if not isinstance(a.value, int): raise STSyntaxError(f"value '{a}' is not compatible with numerical operation {self.operator.value}")
+			if not isinstance(b.value, int): raise STSyntaxError(f"value '{b}' is not compatible with numerical operation {self.operator.value}")
 			self.value = fn(a.value, b.value)
 			return
 
@@ -265,22 +265,32 @@ class ASTFunctionCall(ASTValue):
 		indicator = "?"
 
 		if self.function.value == "set":
-			[variable,] = self.args
+			try:
+				[variable,] = self.args
+
+			except ValueError:
+				raise STSyntaxError(f"set function needs an argument")
+
 			write_handle = variable.get_write_handle()
 
 			if write_handle is None:
-				raise Exception(f"{variable} is not writable")
+				raise STSyntaxError(f"{variable} is not writable")
 
 			interpreter.set(write_handle, 1)
 			color = "green"
 			indicator = "WRITE"
 
 		if self.function.value == "reset":
-			[variable,] = self.args
+			try:
+				[variable,] = self.args
+
+			except ValueError:
+				raise SyntaxError(f"reset function needs and argument")
+
 			write_handle = variable.get_write_handle()
 
 			if write_handle is None:
-				raise Exception(f"{variable} is not writable")
+				raise STSyntaxError(f"{variable} is not writable")
 
 			interpreter.set(write_handle, 0)
 			color = "green"
@@ -388,7 +398,7 @@ class ValueGatherer(Module):
 						ast_arg = ast_stack.pop()
 
 					except IndexError:
-						raise Exception(f"operator {token.value} requires {get_arg_count(token.value)} arguments")
+						raise STSyntaxError(f"operator {token.value} requires {get_arg_count(token.value)} arguments")
 
 					args.insert(0, ast_arg)
 
@@ -397,7 +407,12 @@ class ValueGatherer(Module):
 
 			raise Exception(f"unsupported token {token}")
 
-		[value,] = ast_stack
+		try:
+			[value,] = ast_stack
+
+		except ValueError:
+			raise STSyntaxError(f"No value supplied where a value is required")
+
 		assert isinstance(value, ASTValue)
 		self.value = value
 
@@ -427,7 +442,7 @@ class UnkownInstructionGatherer(Module):
 	def run(self, interpreter: STInterpreter):
 		instr: list[str] = [ ]
 
-		while interpreter.token.type != TokenType.END_INSTR:
+		while interpreter.token.type != TokenType.END_INSTR and interpreter.token.type != TokenType.EOF:
 			instr.append(interpreter.token.value)
 			interpreter.advance()
 
@@ -485,6 +500,9 @@ class StatementGatherer(Module):
 			self.ast = gatherer.function_call
 			interpreter.expect((TokenType.END_INSTR,))
 			return
+		
+		if interpreter.starts_with(TokenType.EOF):
+			raise STSyntaxError(f"Expected a statement, but reached EOF. Did you forget an end_if?")
 
 		instruction = UnkownInstructionGatherer()
 		instruction.run(interpreter)
@@ -593,7 +611,7 @@ def main():
 	interpreter = STInterpreter(
 		tokens, {
 			"activation1": 1
-		}, console, args
+		}, console, args,
 	)
 	ast = build_AST(interpreter)
 	if "A" in arguments.flags: console.print(Panel.fit(Pretty(ast), title="AST"))
