@@ -56,7 +56,7 @@ class Selector:
 			bit_position -= 16
 			base += 1
 
-		return f"%MW{base}.{bit_position}"
+		return f"%MW{base}.{15 - bit_position}"
 
 class Request:
 	base = 100
@@ -325,7 +325,7 @@ TTAA --EE MMMM MMNN NNNN PPPP PPQQ QQQQ
 			c = f"( {ENABLER} >= 2 and {equals(Request.C, inverser_code)} )"
 
 			with If(" or ".join((a, b, c))):
-				CONSOLE.print(f"SET({inverser_name});")
+				CONSOLE.print(f"RESET({inverser_name});")
 
 	# branch straight
 	with If(f"{ACTION} = 2"):
