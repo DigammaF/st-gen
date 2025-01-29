@@ -1,0 +1,41 @@
+
+Une commande de ce type permet d'impacter jusqu'à trois éléments de la maquette
+Si l'action est l'allumage/extinction d'un tronçon, le quatrième champ (Q) renseigne
+un capteur qui va provoquer l'extinction des tronçons lorsque déclenché.
+
+T: Train
+A: Action
+E: Activateur
+M: Premier élément
+N: Deuxième élément
+P: Troisième élément
+Q: Capteur
+
+0000 0000 0000 0000 0000 0000 0000 0000
+TTAA   EE MMMM MMNN NNNN PPPP PPQQ QQQQ
+
+TT
+00 Train 1
+01 Train 2
+10 Train 3
+11
+
+AA
+00 Allumer/Eteindre tronçon
+01 Déclencher inverseur
+10 Aiguiller droit
+11 Aiguiller bifurqué
+
+EE
+00 1 Element (M)
+01 2 Elements (M et N)
+10 3 Elements (M et N et P)
+11
+
+M/N/P: Tronçon
+
+M/N/P: Inverseur
+
+M/N/P: Aiguillage
+
+Q: Capteurs
