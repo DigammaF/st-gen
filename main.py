@@ -54,25 +54,25 @@ class Selector:
 
 		if bit_position > 15:
 			bit_position -= 16
-			base += 1
+			base -= 1
 
-		return f"%MW{base}.{15 - bit_position}"
+		return f"%MW{base}.{bit_position}"
 
 class Request:
-	base = 100
-	train = Selector(base, 0, 2)
-	action = Selector(base, 2, 2)
-	activity = Selector(base, 4, 2)
-	enabler = Selector(base, 6, 2)
-	A = Selector(base, 8, 6)
-	B = Selector(base, 14, 6)
-	C = Selector(base, 20, 6)
-	sensor = Selector(base, 26, 6)
+	base = 101
+	train = Selector(base, 30, 2)
+	action = Selector(base, 28, 2)
+	activity = Selector(base, 26, 2)
+	enabler = Selector(base, 24, 2)
+	A = Selector(base, 18, 6)
+	B = Selector(base, 12, 6)
+	C = Selector(base, 6, 6)
+	sensor = Selector(base, 0, 6)
 
 def equals(variable: Selector, value: Bits) -> str:
 	assert variable.size == len(value)
 	return "(" + " and ".join(
-		variable[n] if value[n] else f"(not {variable[n]})"
+		variable[n] if value[len(value) - 1 - n] else f"(not {variable[n]})"
 		for n in range(len(value))
 	) + ")"
 
@@ -80,13 +80,13 @@ class NotEnoughStates(Exception): ...
 
 @dataclass
 class Bits:
-	_values: tuple[int, ...] # LMB is LSB
+	_values: tuple[int, ...] # RMB is LSB
 
 	def __str__(self) -> str:
-		return "".join(Bits.color(e) for e in reversed(self._values))
+		return "".join(Bits.color(e) for e in self._values)
 
 	def raw_str(self) -> str:
-		return "".join(str(e) for e in reversed(self._values))
+		return "".join(str(e) for e in self._values)
 
 	def __len__(self) -> int:
 		return len(self._values)
@@ -97,12 +97,13 @@ class Bits:
 
 	@property
 	def ST(self) -> str:
-		return "2#" + f"".join(str(e) for e in reversed(self._values))
+		return "2#" + f"".join(str(e) for e in self._values)
 
 	def incremented(self) -> Bits:
 		result = list(self._values)
 
-		for n in range(len(result)):
+		for n in range(len(result) - 1, 0 -1, -1):
+			print(n)
 			if result[n]:
 				result[n] = 0
 
@@ -289,7 +290,7 @@ TTAA --EE MMMM MMNN NNNN PPPP PPQQ QQQQ
 	disjunction: list[str] = [ ]
 
 	for sensor_name, sensor_code in zip(SENSORS, SENSOR_CODES):
-		disjunction.append(f"( {sensor_name} and {equals(Request.sensor, sensor_code)} ) ")
+		disjunction.append(f"( {equals(Request.sensor, sensor_code)} and {sensor_name} ) ")
 
 	condition.append(f"( {ACTION} = 0 and ( {" or ".join(disjunction)} ) ) ")
 

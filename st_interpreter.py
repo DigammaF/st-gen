@@ -5,8 +5,13 @@
 from __future__ import annotations
 from enum import Enum
 import string
+from sys import argv
 from dataclasses import dataclass
+from typing import Callable
 from rich.console import Console
+from rich.panel import Panel
+from rich.pretty import Pretty
+from argparse import ArgumentParser
 
 VAR_NAME_CHARS: str = string.ascii_letters + string.digits + ".%"
 OPERATORS: tuple[str, ...] = (
@@ -21,6 +26,15 @@ END_IF: tuple[str] = ("end_if",)
 THEN: tuple[str] = ("then",)
 CONTROL_FLOW: tuple[str, ...] = THEN + END_INSTR + IF + END_IF
 KEYWORDS: tuple[str, ...] = CONTROL_FLOW + OPERATORS + OPEN_P + CLOSE_P
+
+COMPARE_FUNCTIONS: dict[str, Callable[[int, int], int]] = {
+	"<=": lambda a, b: a <= b,
+	">=": lambda a, b: a >= b,
+	"<>": lambda a, b: a != b,
+	"=": lambda a, b: a == b,
+	"<": lambda a, b: a < b,
+	">": lambda a, b: a > b,
+}
 
 class STSyntaxError(Exception): ...
 
@@ -50,6 +64,7 @@ class TokenType(Enum):
 	VARIABLE = "VARIABLE"
 	COMMENT = "COMMENT"
 	ASSIGNMENT = "ASSIGNMENT"
+	LITERAL = "LITERAL"
 
 def getType(value: str) -> TokenType:
 	if value in OPERATORS: return TokenType.OPERATOR
@@ -66,13 +81,15 @@ def getType(value: str) -> TokenType:
 class Function:
 	arg_count: int
 
+class Args:
+	display_all_reads: bool = False
+
 @dataclass
 class STInterpreter:
 	tokens: list[Token]
-	variables: dict[str, int]
-	functions: dict[str, Function]
+	variables: dict[str, int|str]
 	console: Console
-	running: bool
+	args: Args
 
 	@property
 	def token(self) -> Token:
@@ -91,10 +108,10 @@ class STInterpreter:
 		else:
 			raise STSyntaxError(f"expected any of {types}, got {token}")
 
-	def fetch(self, name: str) -> int:
+	def fetch(self, name: str) -> int|str:
 		return self.variables.get(name, 0)
 
-	def set(self, name: str, value: int):
+	def set(self, name: str, value: int|str):
 		self.variables[name] = value
 
 	def starts_with(self, *token_types: TokenType) -> bool:
@@ -115,7 +132,7 @@ class ASTUnknownInstruction(AST):
 	line: str
 
 	def run(self, interpreter: STInterpreter):
-		interpreter.console.print(f"[red]{self.line}[/red]")
+		interpreter.console.print(f"(?)\t[red]{self.line}[/red]")
 
 @dataclass
 class ASTConditionalBody(AST):
@@ -137,7 +154,7 @@ class ASTBody(AST):
 			child.run(interpreter)
 
 class ASTValue(AST):
-	value: int
+	value: int|str
 
 	def get_write_handle(self) -> str|None:
 		return None
@@ -162,21 +179,31 @@ class ASTOperator(ASTValue):
 		if self.operator.value == "and":
 			self.value = True
 
-			while self.value:
-				operand = self.operands.pop(0)
+			for operand in self.operands:
 				operand.run(interpreter)
-				self.value = self.value and bool(operand.value)
+				self.value = bool(operand.value)
+				if not self.value: break
 
 			return
 
 		if self.operator.value == "or":
 			self.value = False
 
-			while not self.value:
-				operand = self.operands.pop(0)
+			for operand in self.operands:
 				operand.run(interpreter)
-				self.value = self.value or bool(operand.value)
+				self.value = bool(operand.value)
+				if self.value: break
 
+			return
+
+		if self.operator.value in COMPARE_FUNCTIONS:
+			fn = COMPARE_FUNCTIONS[self.operator.value]
+			[a, b] = self.operands
+			a.run(interpreter)
+			b.run(interpreter)
+			if not isinstance(a.value, int): raise Exception(f"{a.value} is not compatible with operation {self.operator.value}")
+			if not isinstance(b.value, int): raise Exception(f"{b.value} is not compatible with operation {self.operator.value}")
+			self.value = fn(a.value, b.value)
 			return
 
 		raise Exception(f"{self.operator} is not a supported operator")
@@ -204,10 +231,29 @@ class ASTVariable(ASTValue):
 
 	def run(self, interpreter: STInterpreter):
 		assert self.token.type == TokenType.VARIABLE
+		important = "t#" in self.token.value
 		self.value = interpreter.fetch(self.token.value)
+
+		if important or interpreter.args.display_all_reads:
+			color = "yellow" if important else "white"
+			interpreter.console.print(f"(R)\t({self.value})\t[{color}]{self.token.value}[/{color}]")
 
 	def get_write_handle(self) -> str | None:
 		return self.token.value
+
+@dataclass
+class ASTLiteral(ASTValue):
+	inner: Token
+
+	def __str__(self) -> str:
+		return str(self.inner.value)
+
+	def run(self, interpreter: STInterpreter):
+		try:
+			self.value = int(self.inner.value)
+
+		except ValueError:
+			self.value = self.inner.value
 
 @dataclass
 class ASTFunctionCall(ASTValue):
@@ -216,10 +262,10 @@ class ASTFunctionCall(ASTValue):
 
 	def run(self, interpreter: STInterpreter):
 		color = "red"
+		indicator = "?"
 
 		if self.function.value == "set":
 			[variable,] = self.args
-			variable.run(interpreter)
 			write_handle = variable.get_write_handle()
 
 			if write_handle is None:
@@ -227,10 +273,10 @@ class ASTFunctionCall(ASTValue):
 
 			interpreter.set(write_handle, 1)
 			color = "green"
+			indicator = "WRITE"
 
 		if self.function.value == "reset":
 			[variable,] = self.args
-			variable.run(interpreter)
 			write_handle = variable.get_write_handle()
 
 			if write_handle is None:
@@ -238,16 +284,17 @@ class ASTFunctionCall(ASTValue):
 
 			interpreter.set(write_handle, 0)
 			color = "green"
+			indicator = "WRITE"
 
 		args = ", ".join(str(e) for e in self.args)
-		interpreter.console.print(f"[{color}]{self.function.value} ({args}) [/{color}]")
+		interpreter.console.print(f"({indicator})\t[{color}]{self.function.value} ({args}) [/{color}]")
 
 @dataclass
 class ASTComment(AST):
 	token: Token
 
 	def run(self, interpreter: STInterpreter):
-		interpreter.console.print(f"[bold]{self.token.value}[/bold]")
+		interpreter.console.print(f"(COM)\t{self.token.value}")
 
 @dataclass
 class ASTVariableAssignment(AST):
@@ -256,13 +303,8 @@ class ASTVariableAssignment(AST):
 
 	def run(self, interpreter: STInterpreter):
 		self.value.run(interpreter)
-		write_handle = self.value.get_write_handle()
-
-		if write_handle is None:
-			raise Exception(f"{self.variable} is not writable")
-		
-		interpreter.set(write_handle, self.value.value)
-		interpreter.console.print(f"[green]{self.value.value} -> {write_handle}[/green]")
+		interpreter.set(self.variable.value, self.value.value)
+		interpreter.console.print(f"(WRITE)\t[green]{self.value.value} -> {self.variable.value}[/green]")
 
 class Module:
 	def run(self, interpreter: STInterpreter): ...
@@ -271,7 +313,9 @@ def get_precedence(token: Token) -> int:
 	"""Return operator precedence, assuming higher values mean higher precedence."""
 	return {
 		"+": 100, "-": 100, "*": 200, "/": 200,
-		"and": 50, "or": 50, "not": 75
+		"and": 60, "or": 50, "not": 75,
+		"<=": 80, ">=": 80, "<>": 80, "=": 80, ">": 80, "<": 80,
+
 	}.get(token.value, 0)
 
 def apply_shunting_yard(tokens: list[Token]) -> list[Token]:
@@ -279,7 +323,7 @@ def apply_shunting_yard(tokens: list[Token]) -> list[Token]:
 	operator_stack: list[Token] = []
 	
 	for token in tokens:
-		if token.type == TokenType.VARIABLE:
+		if token.type in (TokenType.VARIABLE, TokenType.LITERAL):
 			output_queue.append(token)
 
 		elif token.type == TokenType.OPERATOR:
@@ -312,7 +356,7 @@ class ValueGatherer(Module):
 
 		while interpreter.token.type in (
 			TokenType.VARIABLE, TokenType.OPEN_P, TokenType.CLOSE_P,
-			TokenType.OPERATOR
+			TokenType.OPERATOR, TokenType.LITERAL
 		):
 			if interpreter.token.type == TokenType.OPEN_P: level += 1
 			if interpreter.token.type == TokenType.CLOSE_P:
@@ -324,16 +368,16 @@ class ValueGatherer(Module):
 
 		polish: list[Token] = apply_shunting_yard(parts)[::-1]
 		ast_stack: list[ASTValue] = [ ]
-		interpreter.console.rule("PARSING POLISH")
 
 		while polish:
-			interpreter.console.rule()
-			interpreter.console.print(polish)
 			token = polish.pop()
 
 			if token.type == TokenType.VARIABLE:
 				ast_stack.append(ASTVariable(token))
-				interpreter.console.print(token)
+				continue
+
+			if token.type == TokenType.LITERAL:
+				ast_stack.append(ASTLiteral(token))
 				continue
 
 			if token.type == TokenType.OPERATOR:
@@ -346,11 +390,9 @@ class ValueGatherer(Module):
 					except IndexError:
 						raise Exception(f"operator {token.value} requires {get_arg_count(token.value)} arguments")
 
-					args.append(ast_arg)
+					args.insert(0, ast_arg)
 
 				ast_stack.append(ASTOperator(token, args))
-				interpreter.console.print(token)
-				interpreter.console.print(args)
 				continue
 
 			raise Exception(f"unsupported token {token}")
@@ -392,11 +434,12 @@ class UnkownInstructionGatherer(Module):
 		interpreter.expect((TokenType.END_INSTR,))
 		self.instruction = ASTUnknownInstruction(" ".join(instr) + " ;")
 
-class VariableAssignmentgatherer(Module):
+class VariableAssignmentGatherer(Module):
 	assignment: ASTVariableAssignment
 
 	def run(self, interpreter: STInterpreter):
 		variable = interpreter.token
+		interpreter.advance()
 		interpreter.expect((TokenType.ASSIGNMENT,))
 		gatherer = ValueGatherer()
 		gatherer.run(interpreter)
@@ -407,6 +450,7 @@ class FunctionCallGatherer(Module):
 
 	def run(self, interpreter: STInterpreter):
 		function = interpreter.token
+		interpreter.advance()
 		interpreter.expect((TokenType.OPEN_P,))
 		gatherer = ValueGatherer()
 		gatherer.run(interpreter)
@@ -425,18 +469,21 @@ class StatementGatherer(Module):
 
 		if interpreter.token.type == TokenType.COMMENT:
 			self.ast = ASTComment(interpreter.token)
+			interpreter.advance()
 			return
 		
-		if interpreter.starts_with(TokenType.VARIABLE, TokenType.OPEN_P):
-			gatherer = VariableAssignmentgatherer()
+		if interpreter.starts_with(TokenType.VARIABLE, TokenType.ASSIGNMENT):
+			gatherer = VariableAssignmentGatherer()
 			gatherer.run(interpreter)
 			self.ast = gatherer.assignment
+			interpreter.expect((TokenType.END_INSTR,))
 			return
 
-		if interpreter.starts_with(TokenType.VARIABLE, TokenType.ASSIGNMENT):
+		if interpreter.starts_with(TokenType.VARIABLE, TokenType.OPEN_P):
 			gatherer = FunctionCallGatherer()
 			gatherer.run(interpreter)
 			self.ast = gatherer.function_call
+			interpreter.expect((TokenType.END_INSTR,))
 			return
 
 		instruction = UnkownInstructionGatherer()
@@ -448,6 +495,30 @@ def tokenize(text: str) -> list[Token]:
 
 	while text:
 		found_keyword = False
+
+		if text[0] == "'":
+			text = text[1:]
+
+			try:
+				end_index = text.index("'")
+
+			except ValueError:
+				raise STSyntaxError(f"string literal not closed")
+			
+			tokens.append(Token(TokenType.LITERAL, text[:end_index]))
+			text = text[end_index + 1:]
+
+		if text.startswith("(*"):
+			text = text[2:]
+
+			try:
+				end_index = text.index("*)")
+
+			except ValueError:
+				raise STSyntaxError(f"comment not closed")
+			
+			tokens.append(Token(TokenType.COMMENT, text[:end_index]))
+			text = text[end_index + 2:]
 
 		if text.startswith(":="):
 			tokens.append(Token(TokenType.ASSIGNMENT, ":="))
@@ -473,25 +544,18 @@ def tokenize(text: str) -> list[Token]:
 			if text and text[0] in string.ascii_letters + string.digits:
 				length = 1
 
-				while text[length - 1] in string.ascii_letters + string.digits:
+				while text[length - 1] in string.ascii_letters + string.digits + ".#":
 					length += 1
 
-				tokens.append(Token(TokenType.VARIABLE, text[:length-1].lower()))
+				if all(c in string.digits for c in text[:length-1]):
+					tokens.append(Token(TokenType.LITERAL, text[:length-1]))
+
+				else:
+					tokens.append(Token(TokenType.VARIABLE, text[:length-1].lower()))
+				
 				text = text[length-1:]
 
-		if text.startswith("(*"):
-			text = text[2:]
-
-			try:
-				end_index = text.index("*)")
-
-			except ValueError:
-				raise STSyntaxError(f"comment not closed")
-			
-			tokens.append(Token(TokenType.COMMENT, text[:end_index-2]))
-			text = text[:end_index]
-
-		while text and text[0] in " \n":
+		while text and text[0] in " \n\t":
 			text = text[1:]
 
 	return tokens + [ Token(TokenType.EOF, "EOF"), ]
@@ -506,19 +570,37 @@ def build_AST(interpreter: STInterpreter) -> ASTBody:
 
 	return body
 
-TEXT = r"if ( Activation1 >= 0 and ((not %MW100.8) and %MW100.9 and (not %MW100.10)) ) then RESET(Tj1b); SET(Tj2b); end_if;"
-
 def main():
+	argument_parser = ArgumentParser(
+		prog="st_interpreter",
+		description="Runs ST code",
+	)
+	argument_parser.add_argument("file", help="file containing the code")
+	argument_parser.add_argument("-f", "--flags", default="", help="display additional information -> R: raw code, T: tokens, A: AST, F: final interpreter state")
+	argument_parser.add_argument("-v", "--verbose", action="store_true", help="display additional operations such as (R) Read operations")
+	arguments = argument_parser.parse_args(argv[1:])
+
+	args = Args()
+	args.display_all_reads = arguments.verbose
+
+	with open(arguments.file, "r", encoding="utf-8") as file:
+		code = file.read() + " "
+
 	console = Console()
-	console.print(TEXT)
-	tokens = tokenize(TEXT)
-	console.print(tokens)
+	if "R" in arguments.flags: console.print(Panel.fit(code, title="Raw code"))
+	tokens = tokenize(code)
+	if "T" in arguments.flags: console.print(Panel.fit(Pretty(tokens), title="Tokens"))
 	interpreter = STInterpreter(
-		tokens, { }, { }, console, True
+		tokens, {
+			"activation1": 1
+		}, console, args
 	)
 	ast = build_AST(interpreter)
-	console.print(ast)
+	if "A" in arguments.flags: console.print(Panel.fit(Pretty(ast), title="AST"))
+	console.rule("Code Execution")
 	ast.run(interpreter)
+	console.rule("End of code execution")
+	if "F" in arguments.flags: console.print(Panel.fit(Pretty(interpreter), title="Final State"))
 
 if __name__ == "__main__":
 	main()

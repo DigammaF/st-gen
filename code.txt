@@ -1,0 +1,623 @@
+(* Preparation *)
+ExecuterAction.t := 100;
+C0 := 1;
+C1 := 1;
+C2 := 1;
+C3 := 1;
+C4 := 1;
+C5 := 1;
+C6 := 1;
+C7 := 1;
+C8 := 1;
+C9 := 1;
+C10 := 1;
+C11 := 1;
+C12 := 1;
+C13 := 1;
+C14 := 1;
+C15 := 1;
+C16 := 1;
+C17 := 1;
+C18 := 1;
+C19 := 1;
+C20 := 1;
+C21 := 1;
+C22 := 1;
+C23 := 1;
+C24 := 1;
+C25 := 1;
+C26 := 1;
+C27 := 1;
+C28 := 1;
+C29 := 1;
+C30 := 1;
+C31 := 1;
+C32 := 1;
+C33 := 1;
+C34 := 1;
+C35 := 1;
+C36 := 1;
+C37 := 1;
+C38 := 1;
+C39 := 1;
+
+(* train2, allumer, Tn5, T15, C16 *)
+
+%MW100.15 := 0;
+%MW100.14 := 1;
+
+%MW100.13 := 0;
+%MW100.12 := 0;
+
+%MW100.11 := 1;
+%MW100.10 := 1;
+
+%MW100.9 := 0;
+%MW100.8 := 1;
+
+%MW100.7 := 0;
+%MW100.6 := 0;
+%MW100.5 := 0;
+%MW100.4 := 1;
+%MW100.3 := 0;
+%MW100.2 := 1;
+
+%MW100.1 := 0;
+%MW100.0 := 0;
+%MW101.15 := 1;
+%MW101.14 := 1;
+%MW101.13 := 1;
+%MW101.12 := 1;
+
+%MW101.11 := 0;
+%MW101.10 := 0;
+%MW101.9 := 0;
+%MW101.8 := 0;
+%MW101.7 := 0;
+%MW101.6 := 0;
+
+%MW101.5 := 0;
+%MW101.4 := 1;
+%MW101.3 := 0;
+%MW101.2 := 0;
+%MW101.1 := 0;
+%MW101.0 := 0;
+
+if ((not %MW100.14) and (not %MW100.15)) then
+(* Train 1 *)
+Address1 := '{9.1}SYS'; Destination1 := 102; Count1 := 1;
+Train1 := 0;
+end_if;
+if (%MW100.14 and (not %MW100.15)) then
+(* Train 2 *)
+Address1 := '{9.2}SYS'; Destination1 := 2; Count1 := 1;
+Train1 := 1;
+end_if;
+if ((not %MW100.14) and %MW100.15) then
+(* Train 3 *)
+Address1 := '{9.3}SYS'; Destination1 := 3; Count1 := 1;
+Train1 := 2;
+end_if;
+if ((not %MW100.12) and (not %MW100.13)) then
+(* Allumer/Eteindre tronçon *)
+Action1 := 0;
+end_if;
+if (%MW100.12 and (not %MW100.13)) then
+(* Déclencher inverseur *)
+Action1 := 1;
+end_if;
+if ((not %MW100.12) and %MW100.13) then
+(* Aiguiller droit *)
+Action1 := 2;
+end_if;
+if (%MW100.12 and %MW100.13) then
+(* Aiguiller bifurqué *)
+Action1 := 3;
+end_if;
+if ((not %MW100.8) and (not %MW100.9)) then
+(* 1 Element (M) *)
+Activation1 := 0;
+end_if;
+if (%MW100.8 and (not %MW100.9)) then
+(* 2 Elements (M et N) *)
+Activation1 := 1;
+end_if;
+if ((not %MW100.8) and %MW100.9) then
+(* 3 Elements (M et N et P) *)
+Activation1 := 2;
+end_if;
+if Action1 = 0 then
+(* Allumer/Eteindre tronçon *)
+if ( Activation1 >= 0 and ((not %MW100.2) and (not %MW100.3) and (not %MW100.4) and (not %MW100.5) and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and ((not %MW101.12) and (not %MW101.13) and 
+(not %MW101.14) and (not %MW101.15) and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and ((not %MW101.6) and (not %MW101.7) and (not %MW101.8) and (not %MW101.9) and (not %MW101.10) and (not 
+%MW101.11)) ) then
+SET(Tn0);
+end_if;
+if ( Activation1 >= 0 and (%MW100.2 and (not %MW100.3) and (not %MW100.4) and (not %MW100.5) and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and (%MW101.12 and (not %MW101.13) and (not 
+%MW101.14) and (not %MW101.15) and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and (%MW101.6 and (not %MW101.7) and (not %MW101.8) and (not %MW101.9) and (not %MW101.10) and (not %MW101.11)) ) 
+then
+SET(Tn1);
+end_if;
+if ( Activation1 >= 0 and ((not %MW100.2) and %MW100.3 and (not %MW100.4) and (not %MW100.5) and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and ((not %MW101.12) and %MW101.13 and (not 
+%MW101.14) and (not %MW101.15) and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and ((not %MW101.6) and %MW101.7 and (not %MW101.8) and (not %MW101.9) and (not %MW101.10) and (not %MW101.11)) ) 
+then
+SET(Tn2);
+end_if;
+if ( Activation1 >= 0 and (%MW100.2 and %MW100.3 and (not %MW100.4) and (not %MW100.5) and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and (%MW101.12 and %MW101.13 and (not %MW101.14) and (not 
+%MW101.15) and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and (%MW101.6 and %MW101.7 and (not %MW101.8) and (not %MW101.9) and (not %MW101.10) and (not %MW101.11)) ) then
+SET(Tn3);
+end_if;
+if ( Activation1 >= 0 and ((not %MW100.2) and (not %MW100.3) and %MW100.4 and (not %MW100.5) and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and ((not %MW101.12) and (not %MW101.13) and 
+%MW101.14 and (not %MW101.15) and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and ((not %MW101.6) and (not %MW101.7) and %MW101.8 and (not %MW101.9) and (not %MW101.10) and (not %MW101.11)) ) 
+then
+SET(Tn4);
+end_if;
+if ( Activation1 >= 0 and (%MW100.2 and (not %MW100.3) and %MW100.4 and (not %MW100.5) and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and (%MW101.12 and (not %MW101.13) and %MW101.14 and (not 
+%MW101.15) and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and (%MW101.6 and (not %MW101.7) and %MW101.8 and (not %MW101.9) and (not %MW101.10) and (not %MW101.11)) ) then
+SET(Tn5);
+end_if;
+if ( Activation1 >= 0 and ((not %MW100.2) and %MW100.3 and %MW100.4 and (not %MW100.5) and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and ((not %MW101.12) and %MW101.13 and %MW101.14 and (not 
+%MW101.15) and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and ((not %MW101.6) and %MW101.7 and %MW101.8 and (not %MW101.9) and (not %MW101.10) and (not %MW101.11)) ) then
+SET(Tn6);
+end_if;
+if ( Activation1 >= 0 and (%MW100.2 and %MW100.3 and %MW100.4 and (not %MW100.5) and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and (%MW101.12 and %MW101.13 and %MW101.14 and (not %MW101.15) 
+and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and (%MW101.6 and %MW101.7 and %MW101.8 and (not %MW101.9) and (not %MW101.10) and (not %MW101.11)) ) then
+SET(Tn7);
+end_if;
+if ( Activation1 >= 0 and ((not %MW100.2) and (not %MW100.3) and (not %MW100.4) and %MW100.5 and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and ((not %MW101.12) and (not %MW101.13) and (not 
+%MW101.14) and %MW101.15 and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and ((not %MW101.6) and (not %MW101.7) and (not %MW101.8) and %MW101.9 and (not %MW101.10) and (not %MW101.11)) ) then
+SET(T8);
+end_if;
+if ( Activation1 >= 0 and (%MW100.2 and (not %MW100.3) and (not %MW100.4) and %MW100.5 and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and (%MW101.12 and (not %MW101.13) and (not %MW101.14) and 
+%MW101.15 and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and (%MW101.6 and (not %MW101.7) and (not %MW101.8) and %MW101.9 and (not %MW101.10) and (not %MW101.11)) ) then
+SET(T9);
+end_if;
+if ( Activation1 >= 0 and ((not %MW100.2) and %MW100.3 and (not %MW100.4) and %MW100.5 and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and ((not %MW101.12) and %MW101.13 and (not %MW101.14) and 
+%MW101.15 and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and ((not %MW101.6) and %MW101.7 and (not %MW101.8) and %MW101.9 and (not %MW101.10) and (not %MW101.11)) ) then
+SET(T10);
+end_if;
+if ( Activation1 >= 0 and (%MW100.2 and %MW100.3 and (not %MW100.4) and %MW100.5 and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and (%MW101.12 and %MW101.13 and (not %MW101.14) and %MW101.15 
+and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and (%MW101.6 and %MW101.7 and (not %MW101.8) and %MW101.9 and (not %MW101.10) and (not %MW101.11)) ) then
+SET(T11);
+end_if;
+if ( Activation1 >= 0 and ((not %MW100.2) and (not %MW100.3) and %MW100.4 and %MW100.5 and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and ((not %MW101.12) and (not %MW101.13) and %MW101.14 and 
+%MW101.15 and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and ((not %MW101.6) and (not %MW101.7) and %MW101.8 and %MW101.9 and (not %MW101.10) and (not %MW101.11)) ) then
+SET(T12);
+end_if;
+if ( Activation1 >= 0 and (%MW100.2 and (not %MW100.3) and %MW100.4 and %MW100.5 and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and (%MW101.12 and (not %MW101.13) and %MW101.14 and %MW101.15 
+and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and (%MW101.6 and (not %MW101.7) and %MW101.8 and %MW101.9 and (not %MW101.10) and (not %MW101.11)) ) then
+SET(T13);
+end_if;
+if ( Activation1 >= 0 and ((not %MW100.2) and %MW100.3 and %MW100.4 and %MW100.5 and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and ((not %MW101.12) and %MW101.13 and %MW101.14 and %MW101.15 
+and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and ((not %MW101.6) and %MW101.7 and %MW101.8 and %MW101.9 and (not %MW101.10) and (not %MW101.11)) ) then
+SET(T14);
+end_if;
+if ( Activation1 >= 0 and (%MW100.2 and %MW100.3 and %MW100.4 and %MW100.5 and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and (%MW101.12 and %MW101.13 and %MW101.14 and %MW101.15 and (not 
+%MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and (%MW101.6 and %MW101.7 and %MW101.8 and %MW101.9 and (not %MW101.10) and (not %MW101.11)) ) then
+SET(T15);
+end_if;
+if ( Activation1 >= 0 and ((not %MW100.2) and (not %MW100.3) and (not %MW100.4) and (not %MW100.5) and %MW100.6 and (not %MW100.7)) ) or ( Activation1 >= 1 and ((not %MW101.12) and (not %MW101.13) and (not 
+%MW101.14) and (not %MW101.15) and %MW100.0 and (not %MW100.1)) ) or ( Activation1 >= 2 and ((not %MW101.6) and (not %MW101.7) and (not %MW101.8) and (not %MW101.9) and %MW101.10 and (not %MW101.11)) ) then
+SET(T16);
+end_if;
+if ( Activation1 >= 0 and (%MW100.2 and (not %MW100.3) and (not %MW100.4) and (not %MW100.5) and %MW100.6 and (not %MW100.7)) ) or ( Activation1 >= 1 and (%MW101.12 and (not %MW101.13) and (not %MW101.14) and 
+(not %MW101.15) and %MW100.0 and (not %MW100.1)) ) or ( Activation1 >= 2 and (%MW101.6 and (not %MW101.7) and (not %MW101.8) and (not %MW101.9) and %MW101.10 and (not %MW101.11)) ) then
+SET(T17);
+end_if;
+if ( Activation1 >= 0 and ((not %MW100.2) and %MW100.3 and (not %MW100.4) and (not %MW100.5) and %MW100.6 and (not %MW100.7)) ) or ( Activation1 >= 1 and ((not %MW101.12) and %MW101.13 and (not %MW101.14) and 
+(not %MW101.15) and %MW100.0 and (not %MW100.1)) ) or ( Activation1 >= 2 and ((not %MW101.6) and %MW101.7 and (not %MW101.8) and (not %MW101.9) and %MW101.10 and (not %MW101.11)) ) then
+SET(T18);
+end_if;
+if ( Activation1 >= 0 and (%MW100.2 and %MW100.3 and (not %MW100.4) and (not %MW100.5) and %MW100.6 and (not %MW100.7)) ) or ( Activation1 >= 1 and (%MW101.12 and %MW101.13 and (not %MW101.14) and (not 
+%MW101.15) and %MW100.0 and (not %MW100.1)) ) or ( Activation1 >= 2 and (%MW101.6 and %MW101.7 and (not %MW101.8) and (not %MW101.9) and %MW101.10 and (not %MW101.11)) ) then
+SET(T19);
+end_if;
+end_if;
+if Action1 = 1 then
+(* Déclencher inverseur *)
+if ( Activation1 >= 0 and ((not %MW100.2) and (not %MW100.3) and (not %MW100.4) and (not %MW100.5) and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and ((not %MW101.12) and (not %MW101.13) and 
+(not %MW101.14) and (not %MW101.15) and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and ((not %MW101.6) and (not %MW101.7) and (not %MW101.8) and (not %MW101.9) and (not %MW101.10) and (not 
+%MW101.11)) ) then
+SET(Ti0);
+end_if;
+if ( Activation1 >= 0 and (%MW100.2 and (not %MW100.3) and (not %MW100.4) and (not %MW100.5) and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and (%MW101.12 and (not %MW101.13) and (not 
+%MW101.14) and (not %MW101.15) and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and (%MW101.6 and (not %MW101.7) and (not %MW101.8) and (not %MW101.9) and (not %MW101.10) and (not %MW101.11)) ) 
+then
+SET(Ti1);
+end_if;
+if ( Activation1 >= 0 and ((not %MW100.2) and %MW100.3 and (not %MW100.4) and (not %MW100.5) and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and ((not %MW101.12) and %MW101.13 and (not 
+%MW101.14) and (not %MW101.15) and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and ((not %MW101.6) and %MW101.7 and (not %MW101.8) and (not %MW101.9) and (not %MW101.10) and (not %MW101.11)) ) 
+then
+SET(Ti2);
+end_if;
+if ( Activation1 >= 0 and (%MW100.2 and %MW100.3 and (not %MW100.4) and (not %MW100.5) and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and (%MW101.12 and %MW101.13 and (not %MW101.14) and (not 
+%MW101.15) and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and (%MW101.6 and %MW101.7 and (not %MW101.8) and (not %MW101.9) and (not %MW101.10) and (not %MW101.11)) ) then
+SET(Ti3);
+end_if;
+if ( Activation1 >= 0 and ((not %MW100.2) and (not %MW100.3) and %MW100.4 and (not %MW100.5) and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and ((not %MW101.12) and (not %MW101.13) and 
+%MW101.14 and (not %MW101.15) and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and ((not %MW101.6) and (not %MW101.7) and %MW101.8 and (not %MW101.9) and (not %MW101.10) and (not %MW101.11)) ) 
+then
+SET(Ti4);
+end_if;
+if ( Activation1 >= 0 and (%MW100.2 and (not %MW100.3) and %MW100.4 and (not %MW100.5) and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and (%MW101.12 and (not %MW101.13) and %MW101.14 and (not 
+%MW101.15) and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and (%MW101.6 and (not %MW101.7) and %MW101.8 and (not %MW101.9) and (not %MW101.10) and (not %MW101.11)) ) then
+SET(Ti5);
+end_if;
+if ( Activation1 >= 0 and ((not %MW100.2) and %MW100.3 and %MW100.4 and (not %MW100.5) and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and ((not %MW101.12) and %MW101.13 and %MW101.14 and (not 
+%MW101.15) and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and ((not %MW101.6) and %MW101.7 and %MW101.8 and (not %MW101.9) and (not %MW101.10) and (not %MW101.11)) ) then
+SET(Ti6);
+end_if;
+if ( Activation1 >= 0 and (%MW100.2 and %MW100.3 and %MW100.4 and (not %MW100.5) and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and (%MW101.12 and %MW101.13 and %MW101.14 and (not %MW101.15) 
+and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and (%MW101.6 and %MW101.7 and %MW101.8 and (not %MW101.9) and (not %MW101.10) and (not %MW101.11)) ) then
+SET(Ti7);
+end_if;
+end_if;
+if Action1 = 2 then
+(* Aiguiller droit *)
+if ( Activation1 >= 0 and ((not %MW100.2) and (not %MW100.3) and (not %MW100.4) and (not %MW100.5) and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and ((not %MW101.12) and (not %MW101.13) and 
+(not %MW101.14) and (not %MW101.15) and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and ((not %MW101.6) and (not %MW101.7) and (not %MW101.8) and (not %MW101.9) and (not %MW101.10) and (not 
+%MW101.11)) ) then
+SET(A0d);
+end_if;
+if ( Activation1 >= 0 and (%MW100.2 and (not %MW100.3) and (not %MW100.4) and (not %MW100.5) and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and (%MW101.12 and (not %MW101.13) and (not 
+%MW101.14) and (not %MW101.15) and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and (%MW101.6 and (not %MW101.7) and (not %MW101.8) and (not %MW101.9) and (not %MW101.10) and (not %MW101.11)) ) 
+then
+SET(A1d);
+end_if;
+if ( Activation1 >= 0 and ((not %MW100.2) and %MW100.3 and (not %MW100.4) and (not %MW100.5) and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and ((not %MW101.12) and %MW101.13 and (not 
+%MW101.14) and (not %MW101.15) and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and ((not %MW101.6) and %MW101.7 and (not %MW101.8) and (not %MW101.9) and (not %MW101.10) and (not %MW101.11)) ) 
+then
+SET(A2d);
+end_if;
+if ( Activation1 >= 0 and (%MW100.2 and %MW100.3 and (not %MW100.4) and (not %MW100.5) and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and (%MW101.12 and %MW101.13 and (not %MW101.14) and (not 
+%MW101.15) and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and (%MW101.6 and %MW101.7 and (not %MW101.8) and (not %MW101.9) and (not %MW101.10) and (not %MW101.11)) ) then
+SET(A3d);
+end_if;
+if ( Activation1 >= 0 and ((not %MW100.2) and (not %MW100.3) and %MW100.4 and (not %MW100.5) and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and ((not %MW101.12) and (not %MW101.13) and 
+%MW101.14 and (not %MW101.15) and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and ((not %MW101.6) and (not %MW101.7) and %MW101.8 and (not %MW101.9) and (not %MW101.10) and (not %MW101.11)) ) 
+then
+SET(A4d);
+end_if;
+if ( Activation1 >= 0 and (%MW100.2 and (not %MW100.3) and %MW100.4 and (not %MW100.5) and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and (%MW101.12 and (not %MW101.13) and %MW101.14 and (not 
+%MW101.15) and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and (%MW101.6 and (not %MW101.7) and %MW101.8 and (not %MW101.9) and (not %MW101.10) and (not %MW101.11)) ) then
+SET(A5d);
+end_if;
+if ( Activation1 >= 0 and ((not %MW100.2) and %MW100.3 and %MW100.4 and (not %MW100.5) and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and ((not %MW101.12) and %MW101.13 and %MW101.14 and (not 
+%MW101.15) and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and ((not %MW101.6) and %MW101.7 and %MW101.8 and (not %MW101.9) and (not %MW101.10) and (not %MW101.11)) ) then
+SET(A6d);
+end_if;
+if ( Activation1 >= 0 and (%MW100.2 and %MW100.3 and %MW100.4 and (not %MW100.5) and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and (%MW101.12 and %MW101.13 and %MW101.14 and (not %MW101.15) 
+and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and (%MW101.6 and %MW101.7 and %MW101.8 and (not %MW101.9) and (not %MW101.10) and (not %MW101.11)) ) then
+SET(A7d);
+end_if;
+if ( Activation1 >= 0 and ((not %MW100.2) and (not %MW100.3) and (not %MW100.4) and %MW100.5 and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and ((not %MW101.12) and (not %MW101.13) and (not 
+%MW101.14) and %MW101.15 and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and ((not %MW101.6) and (not %MW101.7) and (not %MW101.8) and %MW101.9 and (not %MW101.10) and (not %MW101.11)) ) then
+SET(A8d);
+end_if;
+if ( Activation1 >= 0 and (%MW100.2 and (not %MW100.3) and (not %MW100.4) and %MW100.5 and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and (%MW101.12 and (not %MW101.13) and (not %MW101.14) and 
+%MW101.15 and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and (%MW101.6 and (not %MW101.7) and (not %MW101.8) and %MW101.9 and (not %MW101.10) and (not %MW101.11)) ) then
+SET(Tj0d);
+end_if;
+if ( Activation1 >= 0 and ((not %MW100.2) and %MW100.3 and (not %MW100.4) and %MW100.5 and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and ((not %MW101.12) and %MW101.13 and (not %MW101.14) and 
+%MW101.15 and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and ((not %MW101.6) and %MW101.7 and (not %MW101.8) and %MW101.9 and (not %MW101.10) and (not %MW101.11)) ) then
+SET(Tj1d);
+end_if;
+if ( Activation1 >= 0 and (%MW100.2 and %MW100.3 and (not %MW100.4) and %MW100.5 and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and (%MW101.12 and %MW101.13 and (not %MW101.14) and %MW101.15 
+and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and (%MW101.6 and %MW101.7 and (not %MW101.8) and %MW101.9 and (not %MW101.10) and (not %MW101.11)) ) then
+SET(Tj2d);
+end_if;
+end_if;
+if Action1 = 3 then
+(* Aiguiller bifurqué *)
+if ( Activation1 >= 0 and ((not %MW100.2) and (not %MW100.3) and (not %MW100.4) and (not %MW100.5) and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and ((not %MW101.12) and (not %MW101.13) and 
+(not %MW101.14) and (not %MW101.15) and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and ((not %MW101.6) and (not %MW101.7) and (not %MW101.8) and (not %MW101.9) and (not %MW101.10) and (not 
+%MW101.11)) ) then
+SET(A0b);
+end_if;
+if ( Activation1 >= 0 and (%MW100.2 and (not %MW100.3) and (not %MW100.4) and (not %MW100.5) and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and (%MW101.12 and (not %MW101.13) and (not 
+%MW101.14) and (not %MW101.15) and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and (%MW101.6 and (not %MW101.7) and (not %MW101.8) and (not %MW101.9) and (not %MW101.10) and (not %MW101.11)) ) 
+then
+SET(A1b);
+end_if;
+if ( Activation1 >= 0 and ((not %MW100.2) and %MW100.3 and (not %MW100.4) and (not %MW100.5) and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and ((not %MW101.12) and %MW101.13 and (not 
+%MW101.14) and (not %MW101.15) and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and ((not %MW101.6) and %MW101.7 and (not %MW101.8) and (not %MW101.9) and (not %MW101.10) and (not %MW101.11)) ) 
+then
+SET(A2b);
+end_if;
+if ( Activation1 >= 0 and (%MW100.2 and %MW100.3 and (not %MW100.4) and (not %MW100.5) and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and (%MW101.12 and %MW101.13 and (not %MW101.14) and (not 
+%MW101.15) and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and (%MW101.6 and %MW101.7 and (not %MW101.8) and (not %MW101.9) and (not %MW101.10) and (not %MW101.11)) ) then
+SET(A3b);
+end_if;
+if ( Activation1 >= 0 and ((not %MW100.2) and (not %MW100.3) and %MW100.4 and (not %MW100.5) and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and ((not %MW101.12) and (not %MW101.13) and 
+%MW101.14 and (not %MW101.15) and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and ((not %MW101.6) and (not %MW101.7) and %MW101.8 and (not %MW101.9) and (not %MW101.10) and (not %MW101.11)) ) 
+then
+SET(A4b);
+end_if;
+if ( Activation1 >= 0 and (%MW100.2 and (not %MW100.3) and %MW100.4 and (not %MW100.5) and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and (%MW101.12 and (not %MW101.13) and %MW101.14 and (not 
+%MW101.15) and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and (%MW101.6 and (not %MW101.7) and %MW101.8 and (not %MW101.9) and (not %MW101.10) and (not %MW101.11)) ) then
+SET(A5b);
+end_if;
+if ( Activation1 >= 0 and ((not %MW100.2) and %MW100.3 and %MW100.4 and (not %MW100.5) and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and ((not %MW101.12) and %MW101.13 and %MW101.14 and (not 
+%MW101.15) and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and ((not %MW101.6) and %MW101.7 and %MW101.8 and (not %MW101.9) and (not %MW101.10) and (not %MW101.11)) ) then
+SET(A6b);
+end_if;
+if ( Activation1 >= 0 and (%MW100.2 and %MW100.3 and %MW100.4 and (not %MW100.5) and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and (%MW101.12 and %MW101.13 and %MW101.14 and (not %MW101.15) 
+and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and (%MW101.6 and %MW101.7 and %MW101.8 and (not %MW101.9) and (not %MW101.10) and (not %MW101.11)) ) then
+SET(A7b);
+end_if;
+if ( Activation1 >= 0 and ((not %MW100.2) and (not %MW100.3) and (not %MW100.4) and %MW100.5 and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and ((not %MW101.12) and (not %MW101.13) and (not 
+%MW101.14) and %MW101.15 and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and ((not %MW101.6) and (not %MW101.7) and (not %MW101.8) and %MW101.9 and (not %MW101.10) and (not %MW101.11)) ) then
+SET(A8b);
+end_if;
+if ( Activation1 >= 0 and (%MW100.2 and (not %MW100.3) and (not %MW100.4) and %MW100.5 and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and (%MW101.12 and (not %MW101.13) and (not %MW101.14) and 
+%MW101.15 and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and (%MW101.6 and (not %MW101.7) and (not %MW101.8) and %MW101.9 and (not %MW101.10) and (not %MW101.11)) ) then
+SET(Tj0b);
+end_if;
+if ( Activation1 >= 0 and ((not %MW100.2) and %MW100.3 and (not %MW100.4) and %MW100.5 and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and ((not %MW101.12) and %MW101.13 and (not %MW101.14) and 
+%MW101.15 and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and ((not %MW101.6) and %MW101.7 and (not %MW101.8) and %MW101.9 and (not %MW101.10) and (not %MW101.11)) ) then
+SET(Tj1b);
+end_if;
+if ( Activation1 >= 0 and (%MW100.2 and %MW100.3 and (not %MW100.4) and %MW100.5 and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and (%MW101.12 and %MW101.13 and (not %MW101.14) and %MW101.15 
+and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and (%MW101.6 and %MW101.7 and (not %MW101.8) and %MW101.9 and (not %MW101.10) and (not %MW101.11)) ) then
+SET(Tj2b);
+end_if;
+end_if;
+condition := ( Action1 = 0 and ( ( ((not %MW101.0) and (not %MW101.1) and (not %MW101.2) and (not %MW101.3) and (not %MW101.4) and (not %MW101.5)) and C0 )  or ( (%MW101.0 and (not %MW101.1) and (not %MW101.2) and (not
+%MW101.3) and (not %MW101.4) and (not %MW101.5)) and C1 )  or ( ((not %MW101.0) and %MW101.1 and (not %MW101.2) and (not %MW101.3) and (not %MW101.4) and (not %MW101.5)) and C2 )  or ( (%MW101.0 and %MW101.1
+and (not %MW101.2) and (not %MW101.3) and (not %MW101.4) and (not %MW101.5)) and C3 )  or ( ((not %MW101.0) and (not %MW101.1) and %MW101.2 and (not %MW101.3) and (not %MW101.4) and (not %MW101.5)) and C4 )
+or ( (%MW101.0 and (not %MW101.1) and %MW101.2 and (not %MW101.3) and (not %MW101.4) and (not %MW101.5)) and C5 )  or ( ((not %MW101.0) and %MW101.1 and %MW101.2 and (not %MW101.3) and (not %MW101.4) and (not
+%MW101.5)) and C6 )  or ( (%MW101.0 and %MW101.1 and %MW101.2 and (not %MW101.3) and (not %MW101.4) and (not %MW101.5)) and C7 )  or ( ((not %MW101.0) and (not %MW101.1) and (not %MW101.2) and %MW101.3 and
+(not %MW101.4) and (not %MW101.5)) and C8 )  or ( (%MW101.0 and (not %MW101.1) and (not %MW101.2) and %MW101.3 and (not %MW101.4) and (not %MW101.5)) and C9 )  or ( ((not %MW101.0) and %MW101.1 and (not
+%MW101.2) and %MW101.3 and (not %MW101.4) and (not %MW101.5)) and C10 )  or ( (%MW101.0 and %MW101.1 and (not %MW101.2) and %MW101.3 and (not %MW101.4) and (not %MW101.5)) and C11 )  or ( ((not %MW101.0) and
+(not %MW101.1) and %MW101.2 and %MW101.3 and (not %MW101.4) and (not %MW101.5)) and C12 )  or ( (%MW101.0 and (not %MW101.1) and %MW101.2 and %MW101.3 and (not %MW101.4) and (not %MW101.5)) and C13 )  or (
+((not %MW101.0) and %MW101.1 and %MW101.2 and %MW101.3 and (not %MW101.4) and (not %MW101.5)) and C14 )  or ( (%MW101.0 and %MW101.1 and %MW101.2 and %MW101.3 and (not %MW101.4) and (not %MW101.5)) and C15 )
+or ( ((not %MW101.0) and (not %MW101.1) and (not %MW101.2) and (not %MW101.3) and %MW101.4 and (not %MW101.5)) and C16 )  or ( (%MW101.0 and (not %MW101.1) and (not %MW101.2) and (not %MW101.3) and %MW101.4
+and (not %MW101.5)) and C17 )  or ( ((not %MW101.0) and %MW101.1 and (not %MW101.2) and (not %MW101.3) and %MW101.4 and (not %MW101.5)) and C18 )  or ( (%MW101.0 and %MW101.1 and (not %MW101.2) and (not
+%MW101.3) and %MW101.4 and (not %MW101.5)) and C19 )  or ( ((not %MW101.0) and (not %MW101.1) and %MW101.2 and (not %MW101.3) and %MW101.4 and (not %MW101.5)) and C20 )  or ( (%MW101.0 and (not %MW101.1) and
+%MW101.2 and (not %MW101.3) and %MW101.4 and (not %MW101.5)) and C21 )  or ( ((not %MW101.0) and %MW101.1 and %MW101.2 and (not %MW101.3) and %MW101.4 and (not %MW101.5)) and C22 )  or ( (%MW101.0 and %MW101.1
+and %MW101.2 and (not %MW101.3) and %MW101.4 and (not %MW101.5)) and C23 )  or ( ((not %MW101.0) and (not %MW101.1) and (not %MW101.2) and %MW101.3 and %MW101.4 and (not %MW101.5)) and C24 )  or ( (%MW101.0
+and (not %MW101.1) and (not %MW101.2) and %MW101.3 and %MW101.4 and (not %MW101.5)) and C25 )  or ( ((not %MW101.0) and %MW101.1 and (not %MW101.2) and %MW101.3 and %MW101.4 and (not %MW101.5)) and C26 )  or (
+(%MW101.0 and %MW101.1 and (not %MW101.2) and %MW101.3 and %MW101.4 and (not %MW101.5)) and C27 )  or ( ((not %MW101.0) and (not %MW101.1) and %MW101.2 and %MW101.3 and %MW101.4 and (not %MW101.5)) and C28 )
+or ( (%MW101.0 and (not %MW101.1) and %MW101.2 and %MW101.3 and %MW101.4 and (not %MW101.5)) and C29 )  or ( ((not %MW101.0) and %MW101.1 and %MW101.2 and %MW101.3 and %MW101.4 and (not %MW101.5)) and C30 )
+or ( (%MW101.0 and %MW101.1 and %MW101.2 and %MW101.3 and %MW101.4 and (not %MW101.5)) and C31 )  or ( ((not %MW101.0) and (not %MW101.1) and (not %MW101.2) and (not %MW101.3) and (not %MW101.4) and %MW101.5)
+and C32 )  or ( (%MW101.0 and (not %MW101.1) and (not %MW101.2) and (not %MW101.3) and (not %MW101.4) and %MW101.5) and C33 )  or ( ((not %MW101.0) and %MW101.1 and (not %MW101.2) and (not %MW101.3) and (not
+%MW101.4) and %MW101.5) and C34 )  or ( (%MW101.0 and %MW101.1 and (not %MW101.2) and (not %MW101.3) and (not %MW101.4) and %MW101.5) and C35 )  or ( ((not %MW101.0) and (not %MW101.1) and %MW101.2 and (not
+%MW101.3) and (not %MW101.4) and %MW101.5) and C36 )  or ( (%MW101.0 and (not %MW101.1) and %MW101.2 and (not %MW101.3) and (not %MW101.4) and %MW101.5) and C37 )  or ( ((not %MW101.0) and %MW101.1 and
+%MW101.2 and (not %MW101.3) and (not %MW101.4) and %MW101.5) and C38 )  or ( (%MW101.0 and %MW101.1 and %MW101.2 and (not %MW101.3) and (not %MW101.4) and %MW101.5) and C39 )  ) )  or ( Action1 = 1 and
+ExecuterAction.t>=t#50ms ) or ( ( Action1 = 2 or Action1 = 3 ) and ExecuterAction.t>=t#300ms );
+if Action1 = 0 then
+(* Allumer/Eteindre tronçon *)
+if ( Activation1 >= 0 and ((not %MW100.2) and (not %MW100.3) and (not %MW100.4) and (not %MW100.5) and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and ((not %MW101.12) and (not %MW101.13) and 
+(not %MW101.14) and (not %MW101.15) and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and ((not %MW101.6) and (not %MW101.7) and (not %MW101.8) and (not %MW101.9) and (not %MW101.10) and (not 
+%MW101.11)) ) then
+RESET(Tn0);
+end_if;
+if ( Activation1 >= 0 and (%MW100.2 and (not %MW100.3) and (not %MW100.4) and (not %MW100.5) and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and (%MW101.12 and (not %MW101.13) and (not 
+%MW101.14) and (not %MW101.15) and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and (%MW101.6 and (not %MW101.7) and (not %MW101.8) and (not %MW101.9) and (not %MW101.10) and (not %MW101.11)) ) 
+then
+RESET(Tn1);
+end_if;
+if ( Activation1 >= 0 and ((not %MW100.2) and %MW100.3 and (not %MW100.4) and (not %MW100.5) and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and ((not %MW101.12) and %MW101.13 and (not 
+%MW101.14) and (not %MW101.15) and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and ((not %MW101.6) and %MW101.7 and (not %MW101.8) and (not %MW101.9) and (not %MW101.10) and (not %MW101.11)) ) 
+then
+RESET(Tn2);
+end_if;
+if ( Activation1 >= 0 and (%MW100.2 and %MW100.3 and (not %MW100.4) and (not %MW100.5) and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and (%MW101.12 and %MW101.13 and (not %MW101.14) and (not 
+%MW101.15) and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and (%MW101.6 and %MW101.7 and (not %MW101.8) and (not %MW101.9) and (not %MW101.10) and (not %MW101.11)) ) then
+RESET(Tn3);
+end_if;
+if ( Activation1 >= 0 and ((not %MW100.2) and (not %MW100.3) and %MW100.4 and (not %MW100.5) and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and ((not %MW101.12) and (not %MW101.13) and 
+%MW101.14 and (not %MW101.15) and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and ((not %MW101.6) and (not %MW101.7) and %MW101.8 and (not %MW101.9) and (not %MW101.10) and (not %MW101.11)) ) 
+then
+RESET(Tn4);
+end_if;
+if ( Activation1 >= 0 and (%MW100.2 and (not %MW100.3) and %MW100.4 and (not %MW100.5) and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and (%MW101.12 and (not %MW101.13) and %MW101.14 and (not 
+%MW101.15) and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and (%MW101.6 and (not %MW101.7) and %MW101.8 and (not %MW101.9) and (not %MW101.10) and (not %MW101.11)) ) then
+RESET(Tn5);
+end_if;
+if ( Activation1 >= 0 and ((not %MW100.2) and %MW100.3 and %MW100.4 and (not %MW100.5) and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and ((not %MW101.12) and %MW101.13 and %MW101.14 and (not 
+%MW101.15) and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and ((not %MW101.6) and %MW101.7 and %MW101.8 and (not %MW101.9) and (not %MW101.10) and (not %MW101.11)) ) then
+RESET(Tn6);
+end_if;
+if ( Activation1 >= 0 and (%MW100.2 and %MW100.3 and %MW100.4 and (not %MW100.5) and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and (%MW101.12 and %MW101.13 and %MW101.14 and (not %MW101.15) 
+and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and (%MW101.6 and %MW101.7 and %MW101.8 and (not %MW101.9) and (not %MW101.10) and (not %MW101.11)) ) then
+RESET(Tn7);
+end_if;
+if ( Activation1 >= 0 and ((not %MW100.2) and (not %MW100.3) and (not %MW100.4) and %MW100.5 and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and ((not %MW101.12) and (not %MW101.13) and (not 
+%MW101.14) and %MW101.15 and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and ((not %MW101.6) and (not %MW101.7) and (not %MW101.8) and %MW101.9 and (not %MW101.10) and (not %MW101.11)) ) then
+RESET(T8);
+end_if;
+if ( Activation1 >= 0 and (%MW100.2 and (not %MW100.3) and (not %MW100.4) and %MW100.5 and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and (%MW101.12 and (not %MW101.13) and (not %MW101.14) and 
+%MW101.15 and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and (%MW101.6 and (not %MW101.7) and (not %MW101.8) and %MW101.9 and (not %MW101.10) and (not %MW101.11)) ) then
+RESET(T9);
+end_if;
+if ( Activation1 >= 0 and ((not %MW100.2) and %MW100.3 and (not %MW100.4) and %MW100.5 and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and ((not %MW101.12) and %MW101.13 and (not %MW101.14) and 
+%MW101.15 and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and ((not %MW101.6) and %MW101.7 and (not %MW101.8) and %MW101.9 and (not %MW101.10) and (not %MW101.11)) ) then
+RESET(T10);
+end_if;
+if ( Activation1 >= 0 and (%MW100.2 and %MW100.3 and (not %MW100.4) and %MW100.5 and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and (%MW101.12 and %MW101.13 and (not %MW101.14) and %MW101.15 
+and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and (%MW101.6 and %MW101.7 and (not %MW101.8) and %MW101.9 and (not %MW101.10) and (not %MW101.11)) ) then
+RESET(T11);
+end_if;
+if ( Activation1 >= 0 and ((not %MW100.2) and (not %MW100.3) and %MW100.4 and %MW100.5 and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and ((not %MW101.12) and (not %MW101.13) and %MW101.14 and 
+%MW101.15 and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and ((not %MW101.6) and (not %MW101.7) and %MW101.8 and %MW101.9 and (not %MW101.10) and (not %MW101.11)) ) then
+RESET(T12);
+end_if;
+if ( Activation1 >= 0 and (%MW100.2 and (not %MW100.3) and %MW100.4 and %MW100.5 and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and (%MW101.12 and (not %MW101.13) and %MW101.14 and %MW101.15 
+and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and (%MW101.6 and (not %MW101.7) and %MW101.8 and %MW101.9 and (not %MW101.10) and (not %MW101.11)) ) then
+RESET(T13);
+end_if;
+if ( Activation1 >= 0 and ((not %MW100.2) and %MW100.3 and %MW100.4 and %MW100.5 and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and ((not %MW101.12) and %MW101.13 and %MW101.14 and %MW101.15 
+and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and ((not %MW101.6) and %MW101.7 and %MW101.8 and %MW101.9 and (not %MW101.10) and (not %MW101.11)) ) then
+RESET(T14);
+end_if;
+if ( Activation1 >= 0 and (%MW100.2 and %MW100.3 and %MW100.4 and %MW100.5 and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and (%MW101.12 and %MW101.13 and %MW101.14 and %MW101.15 and (not 
+%MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and (%MW101.6 and %MW101.7 and %MW101.8 and %MW101.9 and (not %MW101.10) and (not %MW101.11)) ) then
+RESET(T15);
+end_if;
+if ( Activation1 >= 0 and ((not %MW100.2) and (not %MW100.3) and (not %MW100.4) and (not %MW100.5) and %MW100.6 and (not %MW100.7)) ) or ( Activation1 >= 1 and ((not %MW101.12) and (not %MW101.13) and (not 
+%MW101.14) and (not %MW101.15) and %MW100.0 and (not %MW100.1)) ) or ( Activation1 >= 2 and ((not %MW101.6) and (not %MW101.7) and (not %MW101.8) and (not %MW101.9) and %MW101.10 and (not %MW101.11)) ) then
+RESET(T16);
+end_if;
+if ( Activation1 >= 0 and (%MW100.2 and (not %MW100.3) and (not %MW100.4) and (not %MW100.5) and %MW100.6 and (not %MW100.7)) ) or ( Activation1 >= 1 and (%MW101.12 and (not %MW101.13) and (not %MW101.14) and 
+(not %MW101.15) and %MW100.0 and (not %MW100.1)) ) or ( Activation1 >= 2 and (%MW101.6 and (not %MW101.7) and (not %MW101.8) and (not %MW101.9) and %MW101.10 and (not %MW101.11)) ) then
+RESET(T17);
+end_if;
+if ( Activation1 >= 0 and ((not %MW100.2) and %MW100.3 and (not %MW100.4) and (not %MW100.5) and %MW100.6 and (not %MW100.7)) ) or ( Activation1 >= 1 and ((not %MW101.12) and %MW101.13 and (not %MW101.14) and 
+(not %MW101.15) and %MW100.0 and (not %MW100.1)) ) or ( Activation1 >= 2 and ((not %MW101.6) and %MW101.7 and (not %MW101.8) and (not %MW101.9) and %MW101.10 and (not %MW101.11)) ) then
+RESET(T18);
+end_if;
+if ( Activation1 >= 0 and (%MW100.2 and %MW100.3 and (not %MW100.4) and (not %MW100.5) and %MW100.6 and (not %MW100.7)) ) or ( Activation1 >= 1 and (%MW101.12 and %MW101.13 and (not %MW101.14) and (not 
+%MW101.15) and %MW100.0 and (not %MW100.1)) ) or ( Activation1 >= 2 and (%MW101.6 and %MW101.7 and (not %MW101.8) and (not %MW101.9) and %MW101.10 and (not %MW101.11)) ) then
+RESET(T19);
+end_if;
+end_if;
+if Action1 = 1 then
+(* Déclencher inverseur *)
+if ( Activation1 >= 0 and ((not %MW100.2) and (not %MW100.3) and (not %MW100.4) and (not %MW100.5) and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and ((not %MW101.12) and (not %MW101.13) and 
+(not %MW101.14) and (not %MW101.15) and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and ((not %MW101.6) and (not %MW101.7) and (not %MW101.8) and (not %MW101.9) and (not %MW101.10) and (not 
+%MW101.11)) ) then
+RESET(Ti0);
+end_if;
+if ( Activation1 >= 0 and (%MW100.2 and (not %MW100.3) and (not %MW100.4) and (not %MW100.5) and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and (%MW101.12 and (not %MW101.13) and (not 
+%MW101.14) and (not %MW101.15) and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and (%MW101.6 and (not %MW101.7) and (not %MW101.8) and (not %MW101.9) and (not %MW101.10) and (not %MW101.11)) ) 
+then
+RESET(Ti1);
+end_if;
+if ( Activation1 >= 0 and ((not %MW100.2) and %MW100.3 and (not %MW100.4) and (not %MW100.5) and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and ((not %MW101.12) and %MW101.13 and (not 
+%MW101.14) and (not %MW101.15) and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and ((not %MW101.6) and %MW101.7 and (not %MW101.8) and (not %MW101.9) and (not %MW101.10) and (not %MW101.11)) ) 
+then
+RESET(Ti2);
+end_if;
+if ( Activation1 >= 0 and (%MW100.2 and %MW100.3 and (not %MW100.4) and (not %MW100.5) and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and (%MW101.12 and %MW101.13 and (not %MW101.14) and (not 
+%MW101.15) and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and (%MW101.6 and %MW101.7 and (not %MW101.8) and (not %MW101.9) and (not %MW101.10) and (not %MW101.11)) ) then
+RESET(Ti3);
+end_if;
+if ( Activation1 >= 0 and ((not %MW100.2) and (not %MW100.3) and %MW100.4 and (not %MW100.5) and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and ((not %MW101.12) and (not %MW101.13) and 
+%MW101.14 and (not %MW101.15) and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and ((not %MW101.6) and (not %MW101.7) and %MW101.8 and (not %MW101.9) and (not %MW101.10) and (not %MW101.11)) ) 
+then
+RESET(Ti4);
+end_if;
+if ( Activation1 >= 0 and (%MW100.2 and (not %MW100.3) and %MW100.4 and (not %MW100.5) and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and (%MW101.12 and (not %MW101.13) and %MW101.14 and (not 
+%MW101.15) and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and (%MW101.6 and (not %MW101.7) and %MW101.8 and (not %MW101.9) and (not %MW101.10) and (not %MW101.11)) ) then
+RESET(Ti5);
+end_if;
+if ( Activation1 >= 0 and ((not %MW100.2) and %MW100.3 and %MW100.4 and (not %MW100.5) and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and ((not %MW101.12) and %MW101.13 and %MW101.14 and (not 
+%MW101.15) and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and ((not %MW101.6) and %MW101.7 and %MW101.8 and (not %MW101.9) and (not %MW101.10) and (not %MW101.11)) ) then
+RESET(Ti6);
+end_if;
+if ( Activation1 >= 0 and (%MW100.2 and %MW100.3 and %MW100.4 and (not %MW100.5) and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and (%MW101.12 and %MW101.13 and %MW101.14 and (not %MW101.15) 
+and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and (%MW101.6 and %MW101.7 and %MW101.8 and (not %MW101.9) and (not %MW101.10) and (not %MW101.11)) ) then
+RESET(Ti7);
+end_if;
+end_if;
+if Action1 = 2 then
+(* Aiguiller droit *)
+if ( Activation1 >= 0 and ((not %MW100.2) and (not %MW100.3) and (not %MW100.4) and (not %MW100.5) and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and ((not %MW101.12) and (not %MW101.13) and 
+(not %MW101.14) and (not %MW101.15) and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and ((not %MW101.6) and (not %MW101.7) and (not %MW101.8) and (not %MW101.9) and (not %MW101.10) and (not 
+%MW101.11)) ) then
+RESET(A0d);
+end_if;
+if ( Activation1 >= 0 and (%MW100.2 and (not %MW100.3) and (not %MW100.4) and (not %MW100.5) and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and (%MW101.12 and (not %MW101.13) and (not 
+%MW101.14) and (not %MW101.15) and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and (%MW101.6 and (not %MW101.7) and (not %MW101.8) and (not %MW101.9) and (not %MW101.10) and (not %MW101.11)) ) 
+then
+RESET(A1d);
+end_if;
+if ( Activation1 >= 0 and ((not %MW100.2) and %MW100.3 and (not %MW100.4) and (not %MW100.5) and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and ((not %MW101.12) and %MW101.13 and (not 
+%MW101.14) and (not %MW101.15) and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and ((not %MW101.6) and %MW101.7 and (not %MW101.8) and (not %MW101.9) and (not %MW101.10) and (not %MW101.11)) ) 
+then
+RESET(A2d);
+end_if;
+if ( Activation1 >= 0 and (%MW100.2 and %MW100.3 and (not %MW100.4) and (not %MW100.5) and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and (%MW101.12 and %MW101.13 and (not %MW101.14) and (not 
+%MW101.15) and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and (%MW101.6 and %MW101.7 and (not %MW101.8) and (not %MW101.9) and (not %MW101.10) and (not %MW101.11)) ) then
+RESET(A3d);
+end_if;
+if ( Activation1 >= 0 and ((not %MW100.2) and (not %MW100.3) and %MW100.4 and (not %MW100.5) and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and ((not %MW101.12) and (not %MW101.13) and 
+%MW101.14 and (not %MW101.15) and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and ((not %MW101.6) and (not %MW101.7) and %MW101.8 and (not %MW101.9) and (not %MW101.10) and (not %MW101.11)) ) 
+then
+RESET(A4d);
+end_if;
+if ( Activation1 >= 0 and (%MW100.2 and (not %MW100.3) and %MW100.4 and (not %MW100.5) and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and (%MW101.12 and (not %MW101.13) and %MW101.14 and (not 
+%MW101.15) and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and (%MW101.6 and (not %MW101.7) and %MW101.8 and (not %MW101.9) and (not %MW101.10) and (not %MW101.11)) ) then
+RESET(A5d);
+end_if;
+if ( Activation1 >= 0 and ((not %MW100.2) and %MW100.3 and %MW100.4 and (not %MW100.5) and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and ((not %MW101.12) and %MW101.13 and %MW101.14 and (not 
+%MW101.15) and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and ((not %MW101.6) and %MW101.7 and %MW101.8 and (not %MW101.9) and (not %MW101.10) and (not %MW101.11)) ) then
+RESET(A6d);
+end_if;
+if ( Activation1 >= 0 and (%MW100.2 and %MW100.3 and %MW100.4 and (not %MW100.5) and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and (%MW101.12 and %MW101.13 and %MW101.14 and (not %MW101.15) 
+and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and (%MW101.6 and %MW101.7 and %MW101.8 and (not %MW101.9) and (not %MW101.10) and (not %MW101.11)) ) then
+RESET(A7d);
+end_if;
+if ( Activation1 >= 0 and ((not %MW100.2) and (not %MW100.3) and (not %MW100.4) and %MW100.5 and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and ((not %MW101.12) and (not %MW101.13) and (not 
+%MW101.14) and %MW101.15 and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and ((not %MW101.6) and (not %MW101.7) and (not %MW101.8) and %MW101.9 and (not %MW101.10) and (not %MW101.11)) ) then
+RESET(A8d);
+end_if;
+if ( Activation1 >= 0 and (%MW100.2 and (not %MW100.3) and (not %MW100.4) and %MW100.5 and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and (%MW101.12 and (not %MW101.13) and (not %MW101.14) and 
+%MW101.15 and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and (%MW101.6 and (not %MW101.7) and (not %MW101.8) and %MW101.9 and (not %MW101.10) and (not %MW101.11)) ) then
+RESET(Tj0d);
+end_if;
+if ( Activation1 >= 0 and ((not %MW100.2) and %MW100.3 and (not %MW100.4) and %MW100.5 and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and ((not %MW101.12) and %MW101.13 and (not %MW101.14) and 
+%MW101.15 and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and ((not %MW101.6) and %MW101.7 and (not %MW101.8) and %MW101.9 and (not %MW101.10) and (not %MW101.11)) ) then
+RESET(Tj1d);
+end_if;
+if ( Activation1 >= 0 and (%MW100.2 and %MW100.3 and (not %MW100.4) and %MW100.5 and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and (%MW101.12 and %MW101.13 and (not %MW101.14) and %MW101.15 
+and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and (%MW101.6 and %MW101.7 and (not %MW101.8) and %MW101.9 and (not %MW101.10) and (not %MW101.11)) ) then
+RESET(Tj2d);
+end_if;
+end_if;
+if Action1 = 3 then
+(* Aiguiller bifurqué *)
+if ( Activation1 >= 0 and ((not %MW100.2) and (not %MW100.3) and (not %MW100.4) and (not %MW100.5) and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and ((not %MW101.12) and (not %MW101.13) and 
+(not %MW101.14) and (not %MW101.15) and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and ((not %MW101.6) and (not %MW101.7) and (not %MW101.8) and (not %MW101.9) and (not %MW101.10) and (not 
+%MW101.11)) ) then
+RESET(A0b);
+end_if;
+if ( Activation1 >= 0 and (%MW100.2 and (not %MW100.3) and (not %MW100.4) and (not %MW100.5) and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and (%MW101.12 and (not %MW101.13) and (not 
+%MW101.14) and (not %MW101.15) and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and (%MW101.6 and (not %MW101.7) and (not %MW101.8) and (not %MW101.9) and (not %MW101.10) and (not %MW101.11)) ) 
+then
+RESET(A1b);
+end_if;
+if ( Activation1 >= 0 and ((not %MW100.2) and %MW100.3 and (not %MW100.4) and (not %MW100.5) and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and ((not %MW101.12) and %MW101.13 and (not 
+%MW101.14) and (not %MW101.15) and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and ((not %MW101.6) and %MW101.7 and (not %MW101.8) and (not %MW101.9) and (not %MW101.10) and (not %MW101.11)) ) 
+then
+RESET(A2b);
+end_if;
+if ( Activation1 >= 0 and (%MW100.2 and %MW100.3 and (not %MW100.4) and (not %MW100.5) and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and (%MW101.12 and %MW101.13 and (not %MW101.14) and (not 
+%MW101.15) and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and (%MW101.6 and %MW101.7 and (not %MW101.8) and (not %MW101.9) and (not %MW101.10) and (not %MW101.11)) ) then
+RESET(A3b);
+end_if;
+if ( Activation1 >= 0 and ((not %MW100.2) and (not %MW100.3) and %MW100.4 and (not %MW100.5) and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and ((not %MW101.12) and (not %MW101.13) and 
+%MW101.14 and (not %MW101.15) and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and ((not %MW101.6) and (not %MW101.7) and %MW101.8 and (not %MW101.9) and (not %MW101.10) and (not %MW101.11)) ) 
+then
+RESET(A4b);
+end_if;
+if ( Activation1 >= 0 and (%MW100.2 and (not %MW100.3) and %MW100.4 and (not %MW100.5) and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and (%MW101.12 and (not %MW101.13) and %MW101.14 and (not 
+%MW101.15) and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and (%MW101.6 and (not %MW101.7) and %MW101.8 and (not %MW101.9) and (not %MW101.10) and (not %MW101.11)) ) then
+RESET(A5b);
+end_if;
+if ( Activation1 >= 0 and ((not %MW100.2) and %MW100.3 and %MW100.4 and (not %MW100.5) and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and ((not %MW101.12) and %MW101.13 and %MW101.14 and (not 
+%MW101.15) and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and ((not %MW101.6) and %MW101.7 and %MW101.8 and (not %MW101.9) and (not %MW101.10) and (not %MW101.11)) ) then
+RESET(A6b);
+end_if;
+if ( Activation1 >= 0 and (%MW100.2 and %MW100.3 and %MW100.4 and (not %MW100.5) and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and (%MW101.12 and %MW101.13 and %MW101.14 and (not %MW101.15) 
+and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and (%MW101.6 and %MW101.7 and %MW101.8 and (not %MW101.9) and (not %MW101.10) and (not %MW101.11)) ) then
+RESET(A7b);
+end_if;
+if ( Activation1 >= 0 and ((not %MW100.2) and (not %MW100.3) and (not %MW100.4) and %MW100.5 and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and ((not %MW101.12) and (not %MW101.13) and (not 
+%MW101.14) and %MW101.15 and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and ((not %MW101.6) and (not %MW101.7) and (not %MW101.8) and %MW101.9 and (not %MW101.10) and (not %MW101.11)) ) then
+RESET(A8b);
+end_if;
+if ( Activation1 >= 0 and (%MW100.2 and (not %MW100.3) and (not %MW100.4) and %MW100.5 and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and (%MW101.12 and (not %MW101.13) and (not %MW101.14) and 
+%MW101.15 and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and (%MW101.6 and (not %MW101.7) and (not %MW101.8) and %MW101.9 and (not %MW101.10) and (not %MW101.11)) ) then
+RESET(Tj0b);
+end_if;
+if ( Activation1 >= 0 and ((not %MW100.2) and %MW100.3 and (not %MW100.4) and %MW100.5 and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and ((not %MW101.12) and %MW101.13 and (not %MW101.14) and 
+%MW101.15 and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and ((not %MW101.6) and %MW101.7 and (not %MW101.8) and %MW101.9 and (not %MW101.10) and (not %MW101.11)) ) then
+RESET(Tj1b);
+end_if;
+if ( Activation1 >= 0 and (%MW100.2 and %MW100.3 and (not %MW100.4) and %MW100.5 and (not %MW100.6) and (not %MW100.7)) ) or ( Activation1 >= 1 and (%MW101.12 and %MW101.13 and (not %MW101.14) and %MW101.15 
+and (not %MW100.0) and (not %MW100.1)) ) or ( Activation1 >= 2 and (%MW101.6 and %MW101.7 and (not %MW101.8) and %MW101.9 and (not %MW101.10) and (not %MW101.11)) ) then
+RESET(Tj2b);
+end_if;
+end_if;
