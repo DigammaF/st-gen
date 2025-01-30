@@ -49,6 +49,7 @@ def get_arg_count(operator: str) -> int:
 
 @dataclass
 class Token:
+	""" intermediate representation of source code """
 	type: TokenType
 	value: str
 
@@ -92,6 +93,7 @@ class Args:
 
 @dataclass
 class STInterpreter:
+	""" holds the current execution state and the intermediate representation of the source code """
 	tokens: list[Token]
 	variables: dict[str, int|str]
 	console: Console
@@ -131,10 +133,12 @@ class STInterpreter:
 		return True
 
 class AST:
+	""" Abstract Syntax Tree : relational intermediate representation of the source code """
 	def run(self, interpreter: STInterpreter): ...
 
 @dataclass
 class ASTUnknownInstruction(AST):
+	""" an instruction that is not supported or cannot be understood """
 	line: str
 
 	def run(self, interpreter: STInterpreter):
@@ -142,6 +146,7 @@ class ASTUnknownInstruction(AST):
 
 @dataclass
 class ASTConditionalBody(AST):
+	""" the content of a conditional statement """
 	condition: ASTValue
 	body: ASTBody
 
@@ -153,6 +158,7 @@ class ASTConditionalBody(AST):
 
 @dataclass
 class ASTBody(AST):
+	""" a set of instructions to be executed in order """
 	children: list[AST]
 
 	def run(self, interpreter: STInterpreter):
@@ -160,6 +166,11 @@ class ASTBody(AST):
 			child.run(interpreter)
 
 class ASTValue(AST):
+	"""
+	a source code part that evaluates to a value
+	if .get_write_handle returns str, this means the value is writable
+	the write handle can be used with the interpreter: interpreter.set(write_handle, value)
+	"""
 	value: int|str
 
 	def get_write_handle(self) -> str|None:
@@ -167,6 +178,7 @@ class ASTValue(AST):
 
 @dataclass
 class ASTOperator(ASTValue):
+	""" an operator """
 	operator: Token
 	operands: list[ASTValue]
 
@@ -216,6 +228,7 @@ class ASTOperator(ASTValue):
 
 @dataclass
 class ASTSubValue(ASTValue):
+	""" mostly used to represents () """
 	inner: ASTValue
 
 	def __str__(self) -> str:
@@ -230,6 +243,7 @@ class ASTSubValue(ASTValue):
 
 @dataclass
 class ASTVariable(ASTValue):
+	""" variable access """
 	token: Token
 
 	def __str__(self) -> str:
@@ -249,6 +263,7 @@ class ASTVariable(ASTValue):
 
 @dataclass
 class ASTLiteral(ASTValue):
+	""" part of the source code that evaluates to a constant literal """
 	inner: Token
 
 	def __str__(self) -> str:
@@ -263,6 +278,7 @@ class ASTLiteral(ASTValue):
 
 @dataclass
 class ASTFunctionCall(ASTValue):
+	""" part of the source code that represents a function call """
 	function: Token
 	args: list[ASTValue]
 
@@ -319,6 +335,7 @@ class ASTFunctionCall(ASTValue):
 
 @dataclass
 class ASTComment(AST):
+	""" a comment """
 	token: Token
 
 	def run(self, interpreter: STInterpreter):
@@ -326,6 +343,7 @@ class ASTComment(AST):
 
 @dataclass
 class ASTVariableAssignment(AST):
+	""" variable assignment """
 	variable: Token
 	value: ASTValue
 
@@ -335,6 +353,7 @@ class ASTVariableAssignment(AST):
 		interpreter.console.print(f"(WRITE)\t[green]{self.value.value} -> {self.variable.value}[/green]")
 
 class Module:
+	""" a Module turns some token into a predefined AST """
 	def run(self, interpreter: STInterpreter): ...
 
 def get_precedence(token: Token) -> int:
@@ -347,6 +366,7 @@ def get_precedence(token: Token) -> int:
 	}.get(token.value, 0)
 
 def apply_shunting_yard(tokens: list[Token]) -> list[Token]:
+	""" turns infix notation into inverse polish notation """
 	output_queue: list[Token] = []
 	operator_stack: list[Token] = []
 	
@@ -376,9 +396,16 @@ def apply_shunting_yard(tokens: list[Token]) -> list[Token]:
 	return output_queue
 
 class ValueGatherer(Module):
+	""" turns the next tokens into the appropriate ASTValue """
 	value: ASTValue
 
 	def run(self, interpreter: STInterpreter):
+		"""
+			steps:
+			- gather all the tokens in the expression (they are in infix notation)
+			- turn this notation into inverse polish
+			- turns the inverse polish into AST
+		"""
 		parts: list[Token] = [ ]
 		level: int = 0
 
@@ -540,6 +567,7 @@ class StatementGatherer(Module):
 		self.ast = instruction.instruction
 
 def tokenize(text: str) -> list[Token]:
+	""" turns raw source code into tokens """
 	tokens: list[Token] = [ ]
 	previous_text: str = ""
 	head: int = 0
@@ -616,6 +644,7 @@ def tokenize(text: str) -> list[Token]:
 	return tokens + [ Token(TokenType.EOF, "EOF"), ]
 
 def build_AST(interpreter: STInterpreter) -> ASTBody:
+	""" turns tokens into AST """
 	body = ASTBody([ ])
 
 	while interpreter.token.type != TokenType.EOF:
