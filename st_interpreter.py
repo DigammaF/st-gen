@@ -87,10 +87,6 @@ def getType(value: str) -> TokenType:
 	
 	raise Exception(f"cannot find type of '{value}'")
 
-@dataclass
-class Function:
-	arg_count: int
-
 class Args:
 	display_all_reads: bool = False
 
