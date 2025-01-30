@@ -644,9 +644,7 @@ def main():
 	tokens = tokenize(code)
 	if "T" in arguments.flags: console.print(Panel.fit(Pretty(tokens), title="Tokens"))
 	interpreter = STInterpreter(
-		tokens, {
-			"activation1": 1
-		}, console, args,
+		tokens, { }, console, args,
 	)
 	ast = build_AST(interpreter)
 	if "A" in arguments.flags: console.print(Panel.fit(Pretty(ast), title="AST"))
