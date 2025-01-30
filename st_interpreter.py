@@ -545,8 +545,14 @@ class StatementGatherer(Module):
 
 def tokenize(text: str) -> list[Token]:
 	tokens: list[Token] = [ ]
+	previous_text: str = ""
+	head: int = 0
 
 	while text:
+		if text[:200] == previous_text:
+			raise Exception(f"unable to tokenize this: {previous_text}")
+		
+		previous_text = text[:200]
 		found_keyword = False
 
 		if text[0] == "'":
