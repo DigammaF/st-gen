@@ -296,6 +296,18 @@ class ASTFunctionCall(ASTValue):
 			color = "green"
 			indicator = "WRITE"
 
+		if self.function.value == "re":
+			try:
+				[variable,] = self.args
+
+			except ValueError:
+				raise SyntaxError(f"re function needs and argument")
+			
+			variable.run(interpreter)
+			self.value = variable.value
+			color = "green"
+			indicator = "READ"
+
 		args = ", ".join(str(e) for e in self.args)
 		interpreter.console.print(f"({indicator})\t[{color}]{self.function.value} ({args}) [/{color}]")
 

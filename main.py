@@ -10,7 +10,7 @@ CONSOLE = Console(record=True)
 
 TRAINS = ("Train 1", "Train 2", "Train 3")
 CALLBACK_ADDRS = ("'{9.1}SYS'", "'{9.2}SYS'", "'{9.3}SYS'")
-CALLBACK_MEMORIES = ("102", "2", "3")
+CALLBACK_MEMORIES = ("102", "300", "3")
 CALLBACK_COUNTS = ("1", "1", "1")
 ACTIONS = (
 	"Allumer/Eteindre tronçon",
@@ -155,6 +155,10 @@ Q: Capteur
 TTAA --EE MMMM MMNN NNNN PPPP PPQQ QQQQ
 			   
 (Les bits '--' sont toujours à 1)
+			   
+Destination: 100
+Type: %MW
+Quantité: 2 (4 octets)
 """)
 
 	table = Table("Nom", "Code", title="Trains")
@@ -290,7 +294,7 @@ TTAA --EE MMMM MMNN NNNN PPPP PPQQ QQQQ
 	disjunction: list[str] = [ ]
 
 	for sensor_name, sensor_code in zip(SENSORS, SENSOR_CODES):
-		disjunction.append(f"( {equals(Request.sensor, sensor_code)} and {sensor_name} ) ")
+		disjunction.append(f"( {equals(Request.sensor, sensor_code)} and re({sensor_name}) ) ")
 
 	condition.append(f"( {ACTION} = 0 and ( {" or ".join(disjunction)} ) ) ")
 
