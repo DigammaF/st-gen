@@ -52,6 +52,15 @@ class Token:
 	type: TokenType
 	value: str
 
+class PreprocessedToken(Token):
+	""" a token that has already been assigned an AST """
+	ast: ASTValue
+
+	def __init__(self, ast: ASTValue):
+		self.type = TokenType.PREPROCESSED
+		self.value = "/PREPROCESSED/"
+		self.ast = ast
+
 class TokenType(Enum):
 	OPERATOR = "OPERATOR"
 	OPEN_P = "OPEN_P"
@@ -65,6 +74,7 @@ class TokenType(Enum):
 	COMMENT = "COMMENT"
 	ASSIGNMENT = "ASSIGNMENT"
 	LITERAL = "LITERAL"
+	PREPROCESSED = "PREPROCESSED"
 
 def getType(value: str) -> TokenType:
 	if value in OPERATORS: return TokenType.OPERATOR
@@ -345,7 +355,7 @@ def apply_shunting_yard(tokens: list[Token]) -> list[Token]:
 	operator_stack: list[Token] = []
 	
 	for token in tokens:
-		if token.type in (TokenType.VARIABLE, TokenType.LITERAL):
+		if token.type in (TokenType.VARIABLE, TokenType.LITERAL, TokenType.PREPROCESSED):
 			output_queue.append(token)
 
 		elif token.type == TokenType.OPERATOR:
@@ -380,6 +390,14 @@ class ValueGatherer(Module):
 			TokenType.VARIABLE, TokenType.OPEN_P, TokenType.CLOSE_P,
 			TokenType.OPERATOR, TokenType.LITERAL
 		):
+			
+			if interpreter.starts_with(TokenType.VARIABLE, TokenType.OPEN_P):
+				gatherer = FunctionCallGatherer()
+				gatherer.run(interpreter)
+				ast = gatherer.function_call
+				parts.append(PreprocessedToken(ast))
+				continue
+
 			if interpreter.token.type == TokenType.OPEN_P: level += 1
 			if interpreter.token.type == TokenType.CLOSE_P:
 				if level == 0: break
@@ -393,6 +411,11 @@ class ValueGatherer(Module):
 
 		while polish:
 			token = polish.pop()
+
+			if token.type == TokenType.PREPROCESSED:
+				assert isinstance(token, PreprocessedToken)
+				ast_stack.append(token.ast)
+				continue
 
 			if token.type == TokenType.VARIABLE:
 				ast_stack.append(ASTVariable(token))
